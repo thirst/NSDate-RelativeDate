@@ -30,32 +30,36 @@
 @implementation NSDate (RelativeDate)
 
 - (NSString *)relativeDate {
-
+    
 	NSCalendar *calendar = [NSCalendar currentCalendar];
-
+    
 	NSUInteger unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
-
+    
 	NSDateComponents *components = [calendar components:unitFlags fromDate:self toDate:[NSDate date] options:0];
-
+    
 	NSArray *selectorNames = [NSArray arrayWithObjects:@"year", @"month", @"week", @"day", @"hour", @"minute", @"second", nil];
-
+    
 	for (NSString *selectorName in selectorNames) {
 		SEL currentSelector = NSSelectorFromString(selectorName);
 		NSMethodSignature *currentSignature = [NSDateComponents instanceMethodSignatureForSelector:currentSelector];
 		NSInvocation *currentInvocation = [NSInvocation invocationWithMethodSignature:currentSignature];
-
+        
 		[currentInvocation setTarget:components];
 		[currentInvocation setSelector:currentSelector];
 		[currentInvocation invoke];
-
+        
 		NSInteger relativeNumber;
 		[currentInvocation getReturnValue:&relativeNumber];
-
+        
 		if (relativeNumber && relativeNumber != INT32_MAX) {
-			return [NSString stringWithFormat:@"%d%@", relativeNumber, NSLocalizedString([selectorName substringToIndex:1], nil)];
+			//return [NSString stringWithFormat:@"%d%@", relativeNumber, NSLocalizedString([selectorName substringToIndex:1], nil)];
+            if (relativeNumber > 1) {
+                return [NSString stringWithFormat:@"%d %@s ago", relativeNumber, NSLocalizedString(selectorName, nil)];
+            }else
+                return [NSString stringWithFormat:@"%d %@ ago", relativeNumber, NSLocalizedString(selectorName, nil)];
 		}
 	}
-
+    
 	return @"now";
 }
 

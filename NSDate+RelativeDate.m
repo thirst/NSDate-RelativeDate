@@ -31,36 +31,37 @@
 
 - (NSString *)relativeDate {
     
-	NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
     
-	NSUInteger unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
+    NSUInteger unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
     
-	NSDateComponents *components = [calendar components:unitFlags fromDate:self toDate:[NSDate date] options:0];
+    NSDateComponents *components = [calendar components:unitFlags fromDate:self toDate:[NSDate date] options:0];
     
-	NSArray *selectorNames = [NSArray arrayWithObjects:@"year", @"month", @"week", @"day", @"hour", @"minute", @"second", nil];
+    NSArray *selectorNames = [NSArray arrayWithObjects:@"year", @"month", @"week", @"day", @"hour", @"minute", @"second", nil];
     
-	for (NSString *selectorName in selectorNames) {
-		SEL currentSelector = NSSelectorFromString(selectorName);
-		NSMethodSignature *currentSignature = [NSDateComponents instanceMethodSignatureForSelector:currentSelector];
-		NSInvocation *currentInvocation = [NSInvocation invocationWithMethodSignature:currentSignature];
+    for (NSString *selectorName in selectorNames) {
+        SEL currentSelector = NSSelectorFromString(selectorName);
+        NSMethodSignature *currentSignature = [NSDateComponents instanceMethodSignatureForSelector:currentSelector];
+        NSInvocation *currentInvocation = [NSInvocation invocationWithMethodSignature:currentSignature];
         
-		[currentInvocation setTarget:components];
-		[currentInvocation setSelector:currentSelector];
-		[currentInvocation invoke];
+        [currentInvocation setTarget:components];
+        [currentInvocation setSelector:currentSelector];
+        [currentInvocation invoke];
         
-		NSInteger relativeNumber;
-		[currentInvocation getReturnValue:&relativeNumber];
+        NSInteger relativeNumber;
+        [currentInvocation getReturnValue:&relativeNumber];
         
-		if (relativeNumber && relativeNumber != INT32_MAX) {
-			//return [NSString stringWithFormat:@"%d%@", relativeNumber, NSLocalizedString([selectorName substringToIndex:1], nil)];
+        if (relativeNumber && relativeNumber != INT32_MAX) {
             if (relativeNumber > 1) {
                 return [NSString stringWithFormat:@"%d %@s ago", relativeNumber, NSLocalizedString(selectorName, nil)];
-            }else
+            } else {
                 return [NSString stringWithFormat:@"%d %@ ago", relativeNumber, NSLocalizedString(selectorName, nil)];
-		}
-	}
+            }
+        }
+    }
     
-	return @"now";
+    return @"now";
 }
 
 @end
+//

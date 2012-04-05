@@ -37,7 +37,7 @@
     
 	NSDateComponents *components = [calendar components:unitFlags fromDate:self toDate:[NSDate date] options:0];
     
-	NSArray *selectorNames = [NSArray arrayWithObjects:@"Year", @"Month", @"Week", @"Day", @"Hour", @"Minute", @"Second", nil];
+	NSArray *selectorNames = [NSArray arrayWithObjects:@"year", @"month", @"week", @"day", @"hour", @"minute", @"second", nil];
     
 	for (NSString *selectorName in selectorNames) {
 		SEL currentSelector = NSSelectorFromString(selectorName);

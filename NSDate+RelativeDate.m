@@ -26,20 +26,28 @@
 
 #import "NSDate+RelativeDate.h"
 
+NSCalendar  *gCurrentCalendar = nil;
+NSArray     *gSelectorNames = nil;
+NSArray     *gPeriodNames = nil;
+NSUInteger  gUnitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
 
 @implementation NSDate (RelativeDate)
 
-- (NSString *)relativeDate {
-    
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    
-    NSUInteger unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
-    
-    NSDateComponents *components = [calendar components:unitFlags fromDate:self toDate:[NSDate date] options:0];
-    
-    NSArray *selectorNames = [NSArray arrayWithObjects:@"year", @"month", @"week", @"day", @"hour", @"minute", @"second", nil];
-    
-    for (NSString *selectorName in selectorNames) {
+
++(void)load
+{
+    gCurrentCalendar = [NSCalendar currentCalendar];
+    gSelectorNames = [NSArray arrayWithObjects:@"year", @"month", @"week", @"day", @"hour", @"minute", @"second", nil];
+    gPeriodNames = [NSArray arrayWithObjects:@"yr", @"mo", @"w", @"d", @"h", @"m", @"s", nil];
+}
+
+
+- (NSString *)relativeDate
+{
+    NSDateComponents *components = [gCurrentCalendar components:gUnitFlags fromDate:self toDate:[NSDate date] options:0];
+        
+    for (NSString *selectorName in gSelectorNames)
+    {
         SEL currentSelector = NSSelectorFromString(selectorName);
         NSMethodSignature *currentSignature = [NSDateComponents instanceMethodSignatureForSelector:currentSelector];
         NSInvocation *currentInvocation = [NSInvocation invocationWithMethodSignature:currentSignature];
@@ -51,12 +59,9 @@
         NSInteger relativeNumber;
         [currentInvocation getReturnValue:&relativeNumber];
         
-        if (relativeNumber && relativeNumber != INT32_MAX) {
-            if (relativeNumber > 1) {
-                return [NSString stringWithFormat:@"%d %@s ago", relativeNumber, NSLocalizedString(selectorName, nil)];
-            } else {
-                return [NSString stringWithFormat:@"%d %@ ago", relativeNumber, NSLocalizedString(selectorName, nil)];
-            }
+        if (relativeNumber && relativeNumber != INT32_MAX)
+        {
+            return [NSString stringWithFormat:@"%d%@", relativeNumber, [gPeriodNames objectAtIndex:[gSelectorNames indexOfObject:selectorName]]];       // needs to be localizable
         }
     }
     
@@ -64,4 +69,3 @@
 }
 
 @end
-//
